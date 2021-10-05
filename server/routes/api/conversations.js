@@ -3,6 +3,31 @@ const { User, Conversation, Message } = require("../../db/models");
 const { Op } = require("sequelize");
 const onlineUsers = require("../../onlineUsers");
 
+// Mark as read endpoint:
+router.post('/:conversationId/markAsRead', async (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.sendStatus(401);
+    }
+
+    const conversationId = req.params.conversationId;
+    const userId = req.user.id;
+
+    try {
+      await Conversation.markAsRead(conversationId, userId);
+      res.json({
+        message: `Conversation (${conversationId}) marked as read for User (${userId}).`
+      });
+    } catch (error) {
+      res.status(400).json({
+        message: `Request not valid (${error})`
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 // get all conversations for a user, include latest message text for preview, and all messages
 // include other user model so we have info on username/profile pic (don't include current user info)
 router.get("/", async (req, res, next) => {
@@ -18,10 +43,14 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id"],
+      attributes: ["id", "user1LastReadTime", "user2LastReadTime"],
       order: [[Message, "createdAt", "DESC"]],
       include: [
-        { model: Message, order: ["createdAt", "DESC"] },
+        {
+          model: Message,
+          order: ["createdAt", "DESC"],
+          attributes: ['id', 'text', 'senderId', 'createdAt', 'updatedAt', 'conversationId']
+        },
         {
           model: User,
           as: "user1",
@@ -52,13 +81,20 @@ router.get("/", async (req, res, next) => {
       const convoJSON = convo.toJSON();
 
       // set a property "otherUser" so that frontend will have easier access
+      // set a property "lastReadTime"
       if (convoJSON.user1) {
         convoJSON.otherUser = convoJSON.user1;
-        delete convoJSON.user1;
+        convoJSON.lastReadTime = convoJSON.user2LastReadTime;
       } else if (convoJSON.user2) {
         convoJSON.otherUser = convoJSON.user2;
-        delete convoJSON.user2;
+        convoJSON.lastReadTime = convoJSON.user1LastReadTime;
       }
+
+      delete convoJSON.user1;
+      delete convoJSON.user2; // Both these fields should be deleted (one was remaining and it was never used)
+
+      delete convoJSON.user1LastReadTime;
+      delete convoJSON.user2LastReadTime;
 
       // set property for online status of the other user
       if (onlineUsers.includes(convoJSON.otherUser.id)) {

@@ -60,6 +60,9 @@ const mapStateToProps = (state) => {
   // Sort if exists:
   conversation?.messages.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1);
 
+  console.log('messages: ');
+  console.log(conversation?.messages)
+
   return {
     user: state.user,
     conversation: { ...conversation }

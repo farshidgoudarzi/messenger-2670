@@ -12,6 +12,8 @@ axios.interceptors.request.use(async function (config) {
   const token = await localStorage.getItem("messenger-token");
   config.headers["x-access-token"] = token;
 
+  console.log(`x-access-token: ${token}`);
+
   return config;
 });
 
@@ -77,6 +79,14 @@ export const fetchConversations = () => async (dispatch) => {
     console.error(error);
   }
 };
+
+const markConversationAsRead = async (conversationId, body) => {
+  const { data } = await axios.post(`/api/conversations/${conversationId}/markAsRead`, body);
+  console.log(`setConversationAsRead data: `);
+  console.log(data);
+
+  return data;
+}
 
 const saveMessage = async (body) => {
   const { data } = await axios.post("/api/messages", body);
