@@ -68,7 +68,7 @@ router.get("/", async (req, res, next) => {
       }
 
       // Sort conversation messages:
-      convoJSON.messages?.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1);
+      convoJSON.messages?.sort((a, b) => a.createdAt - b.createdAt);
 
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[convoJSON.messages.length - 1].text;
