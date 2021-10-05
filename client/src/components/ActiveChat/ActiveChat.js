@@ -52,13 +52,17 @@ const ActiveChat = (props) => {
 };
 
 const mapStateToProps = (state) => {
+  const conversation = state.conversations &&
+    state.conversations.find(
+      (conversation) => conversation.otherUser.username === state.activeConversation
+    );
+
+  // Sort if exists:
+  conversation?.messages.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1);
+
   return {
     user: state.user,
-    conversation:
-      state.conversations &&
-      state.conversations.find(
-        (conversation) => conversation.otherUser.username === state.activeConversation
-      )
+    conversation: { ...conversation }
   };
 };
 
