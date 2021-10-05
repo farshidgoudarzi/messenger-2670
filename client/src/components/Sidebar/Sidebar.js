@@ -22,6 +22,9 @@ const useStyles = makeStyles(() => ({
 const Sidebar = (props) => {
   const classes = useStyles();
   const conversations = props.conversations || [];
+  console.log('conversations: ');
+  console.log(conversations);
+
   const { handleChange, searchTerm } = props;
 
   return (
