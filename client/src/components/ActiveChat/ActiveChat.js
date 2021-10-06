@@ -54,8 +54,7 @@ const ActiveChat = (props) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
-    conversation:
-      state.conversations &&
+    conversation: state.conversations &&
       state.conversations.find(
         (conversation) => conversation.otherUser.username === state.activeConversation
       )
