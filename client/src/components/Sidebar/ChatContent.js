@@ -26,11 +26,11 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '20px',
     fontSize: '12px',
     fontWeight: 'bold',
+    marginRight: '8px'
   }
 }));
 
 const ChatContent = (props) => {
-  console.log('ChatContent ...');
   const classes = useStyles();
 
   const { conversation } = props;

@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box } from "@material-ui/core";
 import { Input, Header, Messages } from "./index";
 import { connect } from "react-redux";
+import { markReadConversation } from "../../store/utils/thunkCreators.js";
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -20,13 +21,27 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
+
+
 const ActiveChat = (props) => {
   const classes = useStyles();
-  const { user } = props;
+  const { user, markReadConversation } = props;
   const conversation = props.conversation || {};
+  const { messages, lastReadTime } = conversation;
+  const unreadMessages = messages?.filter((message) => !lastReadTime || message.createdAt > lastReadTime) || [];
+
+  const handleMarkAsRead = () => {
+    if (conversation.id && unreadMessages.length > 0) {
+      try {
+        markReadConversation(conversation.id);
+      } catch (error) {
+        console.error(`markReadConversation error: ${error}`);
+      }
+    }
+  };
 
   return (
-    <Box className={classes.root}>
+    <Box className={classes.root} onLoad={handleMarkAsRead()}>
       {conversation.otherUser && (
         <>
           <Header
@@ -61,4 +76,12 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps, null)(ActiveChat);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    markReadConversation: (conversationId) => {
+      dispatch(markReadConversation(conversationId))
+    }
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ActiveChat);
