@@ -10,14 +10,12 @@ router.post('/:conversationId/markAsRead', async (req, res, next) => {
       return res.sendStatus(401);
     }
 
-    const conversationId = req.params.conversationId;
-    const userId = req.user.id;
-
     try {
-      await Conversation.markAsRead(conversationId, userId);
-      res.json({
-        message: `Conversation (${conversationId}) marked as read for User (${userId}).`
-      });
+      const conversationId = parseInt(req.params.conversationId);
+      const userId = req.user.id;
+
+      const data = await Conversation.markAsRead(conversationId, userId);
+      res.json(data);
     } catch (error) {
       res.status(400).json({
         message: `Request not valid (${error})`

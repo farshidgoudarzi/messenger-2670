@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  markConversationAsRead
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -80,12 +81,13 @@ export const fetchConversations = () => async (dispatch) => {
   }
 };
 
-const markConversationAsRead = async (conversationId, body) => {
-  const { data } = await axios.post(`/api/conversations/${conversationId}/markAsRead`, body);
-  console.log(`setConversationAsRead data: `);
-  console.log(data);
-
-  return data;
+export const markReadConversation = (conversationId) => async (dispatch) => {
+  try {
+    const { data } = await axios.post(`/api/conversations/${conversationId}/markAsRead`);
+    dispatch(markConversationAsRead(data));
+  } catch (error) {
+    console.error(`markConversationAsRead error: ${error}`);
+  }
 }
 
 const saveMessage = async (body) => {

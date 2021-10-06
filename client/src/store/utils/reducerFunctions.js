@@ -90,3 +90,15 @@ export const addNewConvoToStore = (state, recipientId, message) => {
     }
   });
 };
+
+export const markConvoAsRead = (state, conversationId, readTime) => {
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const convoCopy = { ...convo };
+      convoCopy.lastReadTime = readTime;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  })
+}

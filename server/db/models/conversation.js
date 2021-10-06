@@ -57,14 +57,18 @@ Conversation.markAsRead = async function (conversationId, userId) {
 
   if (!conversation) throw 'conversationId not valid';
 
-  console.log(conversation.user1Id);
-  console.log(conversation.user2Id);
-
+  const readTime = new Date();
   await conversation.update(
     userId === conversation.user1Id ?
-      { user1LastReadTime: new Date } :
-      { user2LastReadTime: new Date }
+      { user1LastReadTime: readTime } :
+      { user2LastReadTime: readTime }
   )
+
+  return {
+    userId,
+    conversationId,
+    readTime
+  };
 }
 
 module.exports = Conversation;
