@@ -2,16 +2,7 @@ const Sequelize = require("sequelize");
 const db = require("../db");
 const Message = require("./message");
 
-const Conversation = db.define("conversation", {
-  user1LastReadTime: {
-    type: Sequelize.DATE,
-    allowNull: true
-  },
-  user2LastReadTime: {
-    type: Sequelize.DATE,
-    allowNull: true
-  },
-});
+const Conversation = db.define("conversation", {});
 
 // find conversation given two user Ids
 
@@ -24,7 +15,7 @@ Conversation.findConversation = async function (user1Id, user2Id) {
       user2Id: {
         [Sequelize.Op.or]: [user1Id, user2Id]
       }
-    }
+    },
   });
 
   // return conversation or null if it doesn't exist
@@ -32,43 +23,28 @@ Conversation.findConversation = async function (user1Id, user2Id) {
 };
 
 Conversation.markAsRead = async function (conversationId, userId) {
-  const conversation = await Conversation.findOne({
+  const rawQuery = `
+    UPDATE Messages
+    SET "isRead" = true
+    WHERE "conversationId" = ${conversationId}
+    AND "senderId" <> ${userId}
+  `;
+
+  await db.query(rawQuery);
+
+  const lastReadMessage = await Message.findOne({
     where: {
-      id: {
+      conversationId: {
         [Sequelize.Op.eq]: conversationId
       },
-      // Result should be null if userId provided is not in channel:
-      [Sequelize.Op.or]: [
-        {
-          user1Id:
-          {
-            [Sequelize.Op.eq]: userId
-          }
-        },
-        {
-          user2Id:
-          {
-            [Sequelize.Op.eq]: userId
-          }
-        }
-      ]
-    }
+      senderId: {
+        [Sequelize.Op.ne]: userId
+      }
+    },
+    order: [["createdAt", "DESC"]],
   });
 
-  if (!conversation) throw new Error('conversationId not valid');
-
-  const readTime = new Date();
-  await conversation.update(
-    userId === conversation.user1Id ?
-      { user1LastReadTime: readTime } :
-      { user2LastReadTime: readTime }
-  )
-
-  return {
-    userId,
-    conversationId,
-    readTime
-  };
+  return lastReadMessage;
 }
 
 module.exports = Conversation;
