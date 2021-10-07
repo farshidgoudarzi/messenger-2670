@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  markConversationAsRead
+  sendConversationReadFlag
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -79,14 +79,39 @@ export const fetchConversations = () => async (dispatch) => {
   }
 };
 
-export const markReadConversation = (conversationId) => async (dispatch) => {
+export const markReadConversation = (
+  conversationId,
+  lastReadMessageId,
+  userId,
+  senderId
+) => async (dispatch) => {
   try {
-    const { data } = await axios.post(`/api/conversations/${conversationId}/markAsRead`);
-    dispatch(markConversationAsRead(data));
+    const data = {
+      conversationId,
+      lastReadMessageId,
+      userId,
+      senderId
+    };
+
+    // First reflect changes on client:
+    dispatch(sendConversationReadFlag(data));
+
+    // Send data to database:
+    await axios.put(`/api/conversations/${conversationId}/read-flag`);
+
+    // Send event:
+    sendReadFlag(data, senderId);
   } catch (error) {
     console.error(`markConversationAsRead error: ${error}`);
   }
 }
+
+const sendReadFlag = (data, recipientId) => {
+  socket.emit("read-flag", {
+    ...data,
+    recipientId,
+  });
+};
 
 const saveMessage = async (body) => {
   const { data } = await axios.post("/api/messages", body);

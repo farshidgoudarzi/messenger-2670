@@ -8,6 +8,7 @@ export const addMessageToStore = (state, payload) => {
       otherUser: sender,
       messages: [message],
       latestMessageText: message.text,
+      unreadMessagesCount: 1,
     };
     return [newConvo, ...state];
   }
@@ -21,6 +22,7 @@ export const addMessageToStore = (state, payload) => {
       ];
       convoCopy.messages = messages;
       convoCopy.latestMessageText = message.text;
+      convoCopy.unreadMessagesCount = convoCopy.unreadMessagesCount + 1;
 
       return convoCopy;
     } else {
@@ -91,11 +93,35 @@ export const addNewConvoToStore = (state, recipientId, message) => {
   });
 };
 
-export const markConvoAsRead = (state, conversationId, readTime) => {
+export const sendConvoReadFlag = (state, conversationId) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
       const convoCopy = { ...convo };
-      convoCopy.lastReadTime = readTime;
+      convoCopy.unreadMessagesCount = 0;
+      return convoCopy;
+    } else {
+      return convo;
+    }
+  })
+}
+
+export const getConvoReadFlag = (state, conversationId, lastReadMessageId, senderId) => {
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const convoCopy = { ...convo };
+      const messages = convoCopy.messages.map((message) => {
+        if (message.senderId === senderId && message.id <= lastReadMessageId) {
+          const messageCopy = { ...message };
+          messageCopy.isRead = true;
+          return messageCopy;
+        } else {
+          return message;
+        }
+      });
+
+      convoCopy.messages = [...messages];
+      convoCopy.lastSentReadMessageId = lastReadMessageId;
+
       return convoCopy;
     } else {
       return convo;

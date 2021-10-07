@@ -27,13 +27,19 @@ const ActiveChat = (props) => {
   const classes = useStyles();
   const { user, markReadConversation } = props;
   const conversation = props.conversation || {};
-  const { messages, lastReadTime } = conversation;
-  const unreadMessages = messages?.filter((message) => !lastReadTime || message.createdAt > lastReadTime) || [];
+  const { unreadMessagesCount } = conversation;
 
   const handleMarkAsRead = () => {
-    if (conversation.id && unreadMessages.length > 0) {
+    if (conversation.id && unreadMessagesCount > 0) {
+      const otherMessages = conversation.messages.filter((msg) => msg.senderId !== user.id);
+
       try {
-        markReadConversation(conversation.id);
+        markReadConversation(
+          conversation.id,
+          otherMessages[otherMessages.length - 1].id, // Send last message id sent by others
+          user.id,
+          otherMessages[otherMessages.length - 1].senderId
+        );
       } catch (error) {
         console.error(`markReadConversation error: ${error}`);
       }
@@ -53,6 +59,7 @@ const ActiveChat = (props) => {
               messages={conversation.messages}
               otherUser={conversation.otherUser}
               userId={user.id}
+              lastSentReadMessageId={conversation.lastSentReadMessageId}
             />
             <Input
               otherUser={conversation.otherUser}
@@ -78,8 +85,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    markReadConversation: (conversationId) => {
-      dispatch(markReadConversation(conversationId))
+    markReadConversation: (conversationId, lastReadMessageId, userId, senderId) => {
+      dispatch(markReadConversation(conversationId, lastReadMessageId, userId, senderId))
     }
   };
 };

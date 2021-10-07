@@ -44,7 +44,10 @@ Conversation.markAsRead = async function (conversationId, userId) {
     order: [["createdAt", "DESC"]],
   });
 
-  return lastReadMessage;
+  return {
+    conversationId,
+    userId
+  };
 }
 
 module.exports = Conversation;

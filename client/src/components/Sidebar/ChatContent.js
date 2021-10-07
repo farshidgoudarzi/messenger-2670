@@ -30,8 +30,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: '8px'
   },
   unreadLastMessage: {
-    color: "black",
-    fontWeight: "bold"
+    color: "black"
   }
 }));
 
@@ -39,13 +38,13 @@ const ChatContent = (props) => {
   const classes = useStyles();
 
   const { conversation } = props;
-  const { latestMessageText, otherUser, messages, lastReadTime } = conversation;
+  const { latestMessageText, otherUser, unreadMessagesCount } = conversation;
 
-  const unreadMessages = messages?.filter((message) => !lastReadTime || message.createdAt > lastReadTime) || [];
+  // const unreadMessages = messages?.filter((message) => !lastReadTime || message.createdAt > lastReadTime) || [];
 
   // Classes for uread text:
   const latestMessageTextClasses = classes.previewText +
-    (unreadMessages.length > 0 ? ' ' + classes.unreadLastMessage : '');
+    (unreadMessagesCount > 0 ? ' ' + classes.unreadLastMessage : '');
 
   return (
     <Box className={classes.root}>
@@ -59,10 +58,10 @@ const ChatContent = (props) => {
       </Box>
       {
         // Put element only if there are unread messages:
-        unreadMessages.length > 0 &&
+        unreadMessagesCount > 0 &&
         <Box>
           <Typography className={classes.unreadCount}>
-            {unreadMessages.length}
+            {unreadMessagesCount}
           </Typography>
         </Box>
       }

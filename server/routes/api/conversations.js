@@ -60,7 +60,19 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id"],
+      attributes: [
+        "id",
+        [
+          Sequelize.literal(`(
+              SELECT COUNT(*)
+              FROM messages AS m
+              WHERE m."conversationId" = conversation.id
+              AND m."senderId" <> ${userId}
+              AND m."isRead" = false
+            )`),
+          'unreadMessagesCount'
+        ]
+      ],
       order: [[Message, "createdAt", "DESC"]],
       include: [
         {
@@ -131,6 +143,9 @@ router.get("/", async (req, res, next) => {
       convoJSON.latestMessageText = convoJSON.messages &&
         convoJSON.messages[convoJSON.messages.length - 1].text;
       conversations[i] = convoJSON;
+
+      // Change type to int:
+      convoJSON.unreadMessagesCount = parseInt(convoJSON.unreadMessagesCount);
     }
 
     res.json(conversations);

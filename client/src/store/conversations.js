@@ -4,7 +4,8 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
-  markConvoAsRead,
+  getConvoReadFlag,
+  sendConvoReadFlag,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -16,7 +17,8 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
-const MARK_READ_CONVERSATION = "MARK_READ_CONVERSATION";
+const SEND_READ_FLAG = 'SEND_READ_FLAG';
+const GET_READ_FLAG = 'GET_READ_FLAG';
 
 // ACTION CREATORS
 
@@ -27,13 +29,22 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const markConversationAsRead = (data) => {
+export const sendConversationReadFlag = (data) => {
   return {
-    type: MARK_READ_CONVERSATION,
+    type: SEND_READ_FLAG,
     payload: {
-      userId: data.userId,
       conversationId: data.conversationId,
-      readTime: data.readTime
+    },
+  };
+};
+
+export const getConversationReadFlag = (data) => {
+  return {
+    type: GET_READ_FLAG,
+    payload: {
+      conversationId: data.conversationId,
+      lastReadMessageId: data.lastReadMessageId,
+      senderId: data.senderId
     },
   };
 };
@@ -104,11 +115,17 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
-    case MARK_READ_CONVERSATION:
-      return markConvoAsRead(
+    case SEND_READ_FLAG:
+      return sendConvoReadFlag(
         state,
         action.payload.conversationId,
-        action.payload.readTime,
+      );
+    case GET_READ_FLAG:
+      return getConvoReadFlag(
+        state,
+        action.payload.conversationId,
+        action.payload.lastReadMessageId,
+        action.payload.senderId,
       );
     default:
       return state;
