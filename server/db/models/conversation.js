@@ -55,7 +55,7 @@ Conversation.markAsRead = async function (conversationId, userId) {
     }
   });
 
-  if (!conversation) throw 'conversationId not valid';
+  if (!conversation) throw new Error('conversationId not valid');
 
   const readTime = new Date();
   await conversation.update(
