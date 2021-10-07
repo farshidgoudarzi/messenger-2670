@@ -18,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 12,
     color: "#9CADC8",
     letterSpacing: -0.17,
+    fontWeight: "bold"
   },
   unreadCount: {
     color: 'white',
@@ -27,6 +28,10 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '12px',
     fontWeight: 'bold',
     marginRight: '8px'
+  },
+  unreadLastMessage: {
+    color: "black",
+    fontWeight: "bold"
   }
 }));
 
@@ -38,13 +43,17 @@ const ChatContent = (props) => {
 
   const unreadMessages = messages?.filter((message) => !lastReadTime || message.createdAt > lastReadTime) || [];
 
+  // Classes for uread text:
+  const latestMessageTextClasses = classes.previewText +
+    (unreadMessages.length > 0 ? ' ' + classes.unreadLastMessage : '');
+
   return (
     <Box className={classes.root}>
       <Box>
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
+        <Typography className={latestMessageTextClasses}>
           {latestMessageText}
         </Typography>
       </Box>

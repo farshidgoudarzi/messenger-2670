@@ -105,11 +105,6 @@ const reducer = (state = [], action) => {
         action.payload.newMessage
       );
     case MARK_READ_CONVERSATION:
-      console.log(`action: `);
-      console.log(action);
-      console.log(`state: `);
-      console.log(state);
-
       return markConvoAsRead(
         state,
         action.payload.conversationId,
