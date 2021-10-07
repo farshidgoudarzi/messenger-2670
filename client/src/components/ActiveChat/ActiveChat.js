@@ -36,9 +36,9 @@ const ActiveChat = (props) => {
       try {
         markReadConversation(
           conversation.id,
-          otherMessages[otherMessages.length - 1].id, // Send last message id sent by others
+          otherMessages.length > 0 && otherMessages[otherMessages.length - 1].id, // Send last message id sent by others
           user.id,
-          otherMessages[otherMessages.length - 1].senderId
+          otherMessages.length > 0 && otherMessages[otherMessages.length - 1].senderId
         );
       } catch (error) {
         console.error(`markReadConversation error: ${error}`);

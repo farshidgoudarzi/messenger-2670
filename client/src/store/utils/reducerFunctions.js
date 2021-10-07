@@ -22,7 +22,7 @@ export const addMessageToStore = (state, payload) => {
       ];
       convoCopy.messages = messages;
       convoCopy.latestMessageText = message.text;
-      convoCopy.unreadMessagesCount = convoCopy.unreadMessagesCount + 1;
+      convoCopy.unreadMessagesCount = (convoCopy.unreadMessagesCount || 0) + 1;
 
       return convoCopy;
     } else {
