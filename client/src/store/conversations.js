@@ -4,6 +4,8 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  getConvoReadFlag,
+  sendConvoReadFlag,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,6 +17,8 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const SEND_READ_FLAG = 'SEND_READ_FLAG';
+const GET_READ_FLAG = 'GET_READ_FLAG';
 
 // ACTION CREATORS
 
@@ -22,6 +26,26 @@ export const gotConversations = (conversations) => {
   return {
     type: GET_CONVERSATIONS,
     conversations,
+  };
+};
+
+export const sendConversationReadFlag = (data) => {
+  return {
+    type: SEND_READ_FLAG,
+    payload: {
+      conversationId: data.conversationId,
+    },
+  };
+};
+
+export const getConversationReadFlag = (data) => {
+  return {
+    type: GET_READ_FLAG,
+    payload: {
+      conversationId: data.conversationId,
+      lastReadMessageId: data.lastReadMessageId,
+      senderId: data.senderId
+    },
   };
 };
 
@@ -90,6 +114,18 @@ const reducer = (state = [], action) => {
         state,
         action.payload.recipientId,
         action.payload.newMessage
+      );
+    case SEND_READ_FLAG:
+      return sendConvoReadFlag(
+        state,
+        action.payload.conversationId,
+      );
+    case GET_READ_FLAG:
+      return getConvoReadFlag(
+        state,
+        action.payload.conversationId,
+        action.payload.lastReadMessageId,
+        action.payload.senderId,
       );
     default:
       return state;
